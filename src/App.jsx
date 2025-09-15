@@ -1,37 +1,54 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import appLogo from '/favicon.svg'
-import PWABadge from './PWABadge.jsx'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
+function App() {
+
+  const API_URL = "https://www.johanovsti.eu/RestAPI/api.php/filmy";
+
+  const [data, setData] = useState([]);
+
+  const [hledJmeno, setHledJmeno] = useState("");
+  const [hledZanr, setHledZanr] = useState("");
+
+  const [uniqZanry, setUniqZanry] = useState([]);
+
+  useEffect(() => {
+    fetch(API_URL)
+    .then((response) => response.json())
+    .then((date) => {
+      setData(data);
+
+
+      //mam vsechna data -> vyfiltrujeme zanry
+      const zanry = [... new Set(data.map((item) => item.zanr))];
+    })
+    .catch((error) => console.error(error))
+  }, []);
+
+  //funkce která vytáhne vyfiltrovaná data z těch všech
+  const getFilteredData = () => {
+    return data.filter((item) => {
+      //filtrování názvu filmu podle txt pole
+      const obsahujeNazev = item.nazev.toLoweCase().includes(hledJmeno.toLowerCase());
+
+      //filtrování podle žánru
+      let maZanr = true;
+
+      if (hledZanr != "") {
+        maZanr = (item.zanr == hledZanr);
+      }
+
+      return (obsahujeNazev && maZanr);
+    })
+  };
+
+
+    return(
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={appLogo} className="logo" alt="React_FiltrFilmy logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1>React Filter Filmy</h1>
       </div>
-      <h1>React_FiltrFilmy</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <PWABadge />
-    </>
-  )
+    )
 }
 
 export default App
